@@ -1,7 +1,30 @@
 
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { FileData, SUPPORTED_FORMATS, ImageFormat, FormatOption, ToolMode } from '../types';
 import { formatSize, getMimeTypeLabel, processImage, getImageDimensions } from '../utils/imageUtils';
+
+interface ToolTabsProps {
+  mode: ToolMode;
+  setMode: (mode: ToolMode) => void;
+}
+
+const ToolTabs: React.FC<ToolTabsProps> = ({ mode, setMode }) => (
+  <div className="flex p-1 bg-slate-100 rounded-2xl mb-8 w-fit mx-auto">
+    {(['convert', 'compress', 'resize'] as ToolMode[]).map((m) => (
+      <button
+        key={m}
+        onClick={() => setMode(m)}
+        className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
+          mode === m 
+            ? 'bg-white text-indigo-600 shadow-sm' 
+            : 'text-slate-500 hover:text-slate-700'
+        }`}
+      >
+        {m.charAt(0).toUpperCase() + m.slice(1)}
+      </button>
+    ))}
+  </div>
+);
 
 const Converter: React.FC = () => {
   const [fileData, setFileData] = useState<FileData | null>(null);
@@ -112,29 +135,11 @@ const Converter: React.FC = () => {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const ToolTabs = () => (
-    <div className="flex p-1 bg-slate-100 rounded-2xl mb-8 w-fit mx-auto">
-      {(['convert', 'compress', 'resize'] as ToolMode[]).map((m) => (
-        <button
-          key={m}
-          onClick={() => setMode(m)}
-          className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
-            mode === m 
-              ? 'bg-white text-indigo-600 shadow-sm' 
-              : 'text-slate-500 hover:text-slate-700'
-          }`}
-        >
-          {m.charAt(0).toUpperCase() + m.slice(1)}
-        </button>
-      ))}
-    </div>
-  );
-
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-8">
       {!fileData ? (
         <>
-          <ToolTabs />
+          <ToolTabs mode={mode} setMode={setMode} />
           <div 
             onDragOver={onDragOver}
             onDragLeave={onDragLeave}
@@ -171,12 +176,11 @@ const Converter: React.FC = () => {
         </>
       ) : (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <ToolTabs />
+          <ToolTabs mode={mode} setMode={setMode} />
           
           <div className="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-xl shadow-slate-200/50">
             <div className="p-6 md:p-10">
               <div className="flex flex-col md:flex-row gap-10 items-start">
-                {/* Preview Area */}
                 <div className="w-full md:w-2/5 group">
                   <div className="aspect-square bg-slate-50 rounded-3xl overflow-hidden border border-slate-100 relative">
                     <img 
@@ -194,7 +198,6 @@ const Converter: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Configuration Area */}
                 <div className="flex-1 space-y-8 w-full">
                   <div>
                     <h3 className="text-2xl font-bold text-slate-900 truncate">
@@ -203,7 +206,6 @@ const Converter: React.FC = () => {
                     <p className="text-indigo-600 text-sm font-semibold mt-1">Ready for {mode}</p>
                   </div>
 
-                  {/* Mode Specific Controls */}
                   <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-6">
                     {mode === 'convert' && (
                       <div className="space-y-3">
